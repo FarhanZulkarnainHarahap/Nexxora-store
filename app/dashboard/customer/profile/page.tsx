@@ -41,7 +41,8 @@ export default function ProfilePage() {
   const [addressLabel, setAddressLabel] = useState("Home");
   const [recipientName, setRecipientName] = useState("");
   const [recipientPhone, setRecipientPhone] = useState("");
-  const [addressDetail, setAddressDetail] = useState("");
+  const [streetName, setStreetName] = useState("");
+  const [addressNote, setAddressNote] = useState("");
   const [destinationSearch, setDestinationSearch] = useState("");
   const [destinations, setDestinations] = useState<RajaOngkirDestination[]>([]);
   const [selectedDestination, setSelectedDestination] = useState<RajaOngkirDestination | null>(null);
@@ -168,18 +169,21 @@ export default function ProfilePage() {
       return;
     }
 
-    if (!recipientName || !recipientPhone || !addressDetail) {
-      toast.error("Recipient and address detail are required");
+    if (!recipientName || !recipientPhone || !streetName) {
+      toast.error("Nama penerima, nomor telepon, dan nama jalan wajib diisi");
       return;
     }
 
     try {
       setSavingAddress(true);
+      const fullAddressDetail = addressNote
+        ? `${streetName}. Catatan: ${addressNote}`
+        : streetName;
       const savedAddress = await createAddress({
         label: addressLabel,
         recipientName,
         recipientPhone,
-        detail: addressDetail,
+        detail: fullAddressDetail,
         rajaongkirId: String(selectedDestination.id),
         rajaongkirLabel: selectedDestination.label,
         provinceName: selectedDestination.province_name,
@@ -194,7 +198,8 @@ export default function ProfilePage() {
       setAddressLabel("Home");
       setRecipientName("");
       setRecipientPhone("");
-      setAddressDetail("");
+      setStreetName("");
+      setAddressNote("");
       setDestinationSearch("");
       setDestinations([]);
       setSelectedDestination(null);
@@ -267,17 +272,35 @@ export default function ProfilePage() {
                   <FiPlusCircle />
                   <h3 className="font-black text-offWhite">Add Address</h3>
                 </div>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  Isi alamat pengiriman seperti di marketplace agar kurir mudah menemukan lokasi.
+                </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <Input label="Label" value={addressLabel} onChange={(event) => setAddressLabel(event.target.value)} />
-                  <Input label="Recipient Phone" value={recipientPhone} onChange={(event) => setRecipientPhone(event.target.value)} />
-                  <Input label="Recipient Name" value={recipientName} onChange={(event) => setRecipientName(event.target.value)} />
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-muted">RajaOngkir Destination</label>
+                  <Input
+                    label="Simpan Sebagai"
+                    value={addressLabel}
+                    onChange={(event) => setAddressLabel(event.target.value)}
+                    placeholder="Rumah, Kantor, Kos"
+                  />
+                  <Input
+                    label="Nama Penerima"
+                    value={recipientName}
+                    onChange={(event) => setRecipientName(event.target.value)}
+                    placeholder="Nama lengkap sesuai KTP"
+                  />
+                  <Input
+                    label="Nomor Telepon"
+                    value={recipientPhone}
+                    onChange={(event) => setRecipientPhone(event.target.value)}
+                    placeholder="Nomor HP/WhatsApp aktif"
+                  />
+                  <div className="sm:col-span-2">
+                    <label className="mb-2 block text-sm font-semibold text-muted">Kecamatan & Kelurahan</label>
                     <div className="flex gap-2">
                       <input
                         value={destinationSearch}
                         onChange={(event) => setDestinationSearch(event.target.value)}
-                        placeholder="Search district/city"
+                        placeholder="Cari kelurahan, kecamatan, kota, atau kabupaten"
                         className="h-12 min-w-0 flex-1 rounded-xl border border-white/10 bg-navy/70 px-4 text-sm text-offWhite outline-none placeholder:text-muted/60 focus:border-gold focus:ring-4 focus:ring-gold/15"
                       />
                       <button
@@ -289,6 +312,9 @@ export default function ProfilePage() {
                         <FiSearch />
                       </button>
                     </div>
+                    <p className="mt-2 text-xs text-muted">
+                      Pilih hasil RajaOngkir untuk mengisi kota/kabupaten, provinsi, dan kode pos otomatis.
+                    </p>
                   </div>
                 </div>
                 {destinations.length > 0 ? (
@@ -309,13 +335,39 @@ export default function ProfilePage() {
                     ))}
                   </div>
                 ) : null}
+                {selectedDestination ? (
+                  <div className="mt-4 grid gap-3 rounded-2xl border border-gold/20 bg-gold/10 p-4 sm:grid-cols-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase text-gold">Kota / Kabupaten</p>
+                      <p className="mt-1 text-sm font-semibold text-offWhite">{selectedDestination.city_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase text-gold">Provinsi</p>
+                      <p className="mt-1 text-sm font-semibold text-offWhite">{selectedDestination.province_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase text-gold">Kode Pos</p>
+                      <p className="mt-1 text-sm font-semibold text-offWhite">{selectedDestination.zip_code || "-"}</p>
+                    </div>
+                  </div>
+                ) : null}
                 <label className="mt-4 block space-y-2">
-                  <span className="text-sm font-medium text-muted">Address Detail</span>
+                  <span className="text-sm font-medium text-muted">Nama Jalan</span>
                   <textarea
-                    value={addressDetail}
-                    onChange={(event) => setAddressDetail(event.target.value)}
+                    value={streetName}
+                    onChange={(event) => setStreetName(event.target.value)}
                     rows={3}
-                    placeholder="Street, building, notes"
+                    placeholder="Nama jalan, nomor rumah, RT/RW, blok, gedung, atau lantai"
+                    className="w-full resize-none rounded-xl border border-white/10 bg-navy/70 p-4 text-offWhite placeholder:text-muted/60 focus:border-gold focus:ring-4 focus:ring-gold/15"
+                  />
+                </label>
+                <label className="mt-4 block space-y-2">
+                  <span className="text-sm font-medium text-muted">Catatan Tambahan</span>
+                  <textarea
+                    value={addressNote}
+                    onChange={(event) => setAddressNote(event.target.value)}
+                    rows={2}
+                    placeholder="Patokan rumah, contoh: pagar hitam, depan masjid"
                     className="w-full resize-none rounded-xl border border-white/10 bg-navy/70 p-4 text-offWhite placeholder:text-muted/60 focus:border-gold focus:ring-4 focus:ring-gold/15"
                   />
                 </label>
@@ -355,7 +407,7 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <p className="mt-4 rounded-2xl border border-gold/25 bg-gold/10 p-4 text-sm text-gold">
-                  No saved shipping address yet. Add one from checkout to calculate RajaOngkir shipping.
+                  Belum ada alamat tersimpan. Tambahkan alamat di form atas agar checkout dan ongkir RajaOngkir lebih cepat.
                 </p>
               )}
             </section>
