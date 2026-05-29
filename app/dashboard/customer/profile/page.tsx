@@ -3,17 +3,27 @@
 import Image from "next/image";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FiEdit, FiLogIn, FiLogOut, FiMapPin, FiSave, FiUpload, FiUser } from "react-icons/fi";
+import {
+  FiEdit,
+  FiLogIn,
+  FiLogOut,
+  FiMapPin,
+  FiPlusCircle,
+  FiSave,
+  FiSearch,
+  FiUpload,
+  FiUser,
+} from "react-icons/fi";
 import toast from "react-hot-toast";
 import AnimatedButton from "@/components/ui/AnimatedButton";
 import EmptyState from "@/components/ui/EmptyState";
 import Input from "@/components/ui/Input";
 import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
 import PageWrapper from "@/components/ui/PageWrapper";
-import { authFetch, authFormFetch, getToken } from "@/lib/api";
+import { authFetch, authFormFetch, createAddress, getToken, searchShippingDestinations } from "@/lib/api";
 import { clearStoredAuth, getStoredUser, setStoredAuth } from "@/lib/auth";
 import { User } from "@/types/user";
-import { Address } from "@/types/address";
+import { Address, RajaOngkirDestination } from "@/types/address";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -26,7 +36,15 @@ export default function ProfilePage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [addressLabel, setAddressLabel] = useState("Home");
+  const [recipientName, setRecipientName] = useState("");
+  const [recipientPhone, setRecipientPhone] = useState("");
+  const [addressDetail, setAddressDetail] = useState("");
+  const [destinationSearch, setDestinationSearch] = useState("");
+  const [destinations, setDestinations] = useState<RajaOngkirDestination[]>([]);
+  const [selectedDestination, setSelectedDestination] = useState<RajaOngkirDestination | null>(null);
 
   useEffect(() => {
     const token = getToken();
@@ -129,6 +147,65 @@ export default function ProfilePage() {
     router.push("/");
   }
 
+  async function handleDestinationSearch() {
+    if (destinationSearch.trim().length < 3) {
+      toast.error("Type at least 3 characters");
+      return;
+    }
+
+    try {
+      const data = await searchShippingDestinations(destinationSearch.trim());
+      setDestinations(data);
+      if (data.length === 0) toast.error("Destination not found");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to search destination");
+    }
+  }
+
+  async function handleCreateAddress() {
+    if (!selectedDestination) {
+      toast.error("Choose RajaOngkir destination first");
+      return;
+    }
+
+    if (!recipientName || !recipientPhone || !addressDetail) {
+      toast.error("Recipient and address detail are required");
+      return;
+    }
+
+    try {
+      setSavingAddress(true);
+      const savedAddress = await createAddress({
+        label: addressLabel,
+        recipientName,
+        recipientPhone,
+        detail: addressDetail,
+        rajaongkirId: String(selectedDestination.id),
+        rajaongkirLabel: selectedDestination.label,
+        provinceName: selectedDestination.province_name,
+        cityName: selectedDestination.city_name,
+        districtName: selectedDestination.district_name,
+        subdistrictName: selectedDestination.subdistrict_name,
+        zipCode: selectedDestination.zip_code,
+        isPrimary: addresses.length === 0,
+      });
+
+      setAddresses((current) => [savedAddress, ...current]);
+      setAddressLabel("Home");
+      setRecipientName("");
+      setRecipientPhone("");
+      setAddressDetail("");
+      setDestinationSearch("");
+      setDestinations([]);
+      setSelectedDestination(null);
+      toast.success("Address saved");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to save address");
+    } finally {
+      setSavingAddress(false);
+    }
+  }
+
   return (
     <PageWrapper className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-black text-offWhite">Nexxora Profile</h1>
@@ -183,7 +260,75 @@ export default function ProfilePage() {
             <section className="rounded-2xl border border-white/10 bg-slateBlue/60 p-5 shadow-soft lg:col-span-2">
               <div className="flex items-center gap-3 text-gold">
                 <FiMapPin />
-              <h2 id="address" className="text-2xl font-black text-offWhite">Saved Shipping Address</h2>
+                <h2 id="address" className="text-2xl font-black text-offWhite">Saved Shipping Address</h2>
+              </div>
+              <div className="mt-5 rounded-2xl border border-gold/20 bg-navy/45 p-4">
+                <div className="flex items-center gap-2 text-gold">
+                  <FiPlusCircle />
+                  <h3 className="font-black text-offWhite">Add Address</h3>
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <Input label="Label" value={addressLabel} onChange={(event) => setAddressLabel(event.target.value)} />
+                  <Input label="Recipient Phone" value={recipientPhone} onChange={(event) => setRecipientPhone(event.target.value)} />
+                  <Input label="Recipient Name" value={recipientName} onChange={(event) => setRecipientName(event.target.value)} />
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-muted">RajaOngkir Destination</label>
+                    <div className="flex gap-2">
+                      <input
+                        value={destinationSearch}
+                        onChange={(event) => setDestinationSearch(event.target.value)}
+                        placeholder="Search district/city"
+                        className="h-12 min-w-0 flex-1 rounded-xl border border-white/10 bg-navy/70 px-4 text-sm text-offWhite outline-none placeholder:text-muted/60 focus:border-gold focus:ring-4 focus:ring-gold/15"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleDestinationSearch}
+                        className="grid h-12 w-12 place-items-center rounded-xl bg-gold text-navy"
+                        aria-label="Search RajaOngkir destination"
+                      >
+                        <FiSearch />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {destinations.length > 0 ? (
+                  <div className="mt-3 grid gap-2">
+                    {destinations.map((destination) => (
+                      <button
+                        key={destination.id}
+                        type="button"
+                        onClick={() => setSelectedDestination(destination)}
+                        className={`rounded-xl border p-3 text-left text-sm transition ${
+                          selectedDestination?.id === destination.id
+                            ? "border-gold bg-gold/10 text-gold"
+                            : "border-white/10 text-muted hover:border-gold/40"
+                        }`}
+                      >
+                        {destination.label}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+                <label className="mt-4 block space-y-2">
+                  <span className="text-sm font-medium text-muted">Address Detail</span>
+                  <textarea
+                    value={addressDetail}
+                    onChange={(event) => setAddressDetail(event.target.value)}
+                    rows={3}
+                    placeholder="Street, building, notes"
+                    className="w-full resize-none rounded-xl border border-white/10 bg-navy/70 p-4 text-offWhite placeholder:text-muted/60 focus:border-gold focus:ring-4 focus:ring-gold/15"
+                  />
+                </label>
+                <AnimatedButton
+                  type="button"
+                  variant="secondary"
+                  className="mt-4 w-full sm:w-auto"
+                  iconLeft={FiPlusCircle}
+                  onClick={handleCreateAddress}
+                  loading={savingAddress}
+                >
+                  Save Address
+                </AnimatedButton>
               </div>
               {addresses.length > 0 ? (
                 <div className="mt-5 grid gap-3 md:grid-cols-2">
