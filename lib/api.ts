@@ -121,6 +121,20 @@ export async function register(name: string, email: string, password: string) {
   });
 }
 
+export async function verifyEmail(token: string) {
+  return apiFetch<User>("/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  });
+}
+
+export async function resendVerification(email: string) {
+  return apiFetch<User>("/auth/resend-verification", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
 export async function getProducts(query = "") {
   return apiFetch<Product[]>(`/products${query}`);
 }

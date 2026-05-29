@@ -7,6 +7,7 @@ export type User = {
   avatar?: string | null;
   phone?: string | null;
   address?: string | null;
+  emailVerifiedAt?: string | null;
   addresses?: Address[];
   role: "USER" | "ADMIN";
 };

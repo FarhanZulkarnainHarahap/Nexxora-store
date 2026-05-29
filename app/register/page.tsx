@@ -36,8 +36,8 @@ export default function RegisterPage() {
     try {
       setLoading(true);
       await register(name, email, password);
-      toast.success("Register success. Please login.");
-      router.push("/login");
+      toast.success("Account created. Please verify your email.");
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Register error");
     } finally {

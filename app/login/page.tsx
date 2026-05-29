@@ -34,7 +34,12 @@ export default function LoginPage() {
       const redirectPath = new URLSearchParams(window.location.search).get("redirect");
       router.push(redirectPath ?? "/");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Login error");
+      const message = error instanceof Error ? error.message : "Login error";
+      toast.error(message);
+
+      if (message.toLowerCase().includes("verify")) {
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+      }
     } finally {
       setLoading(false);
     }
