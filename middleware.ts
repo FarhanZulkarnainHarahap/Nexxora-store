@@ -24,6 +24,7 @@ const customerRouteMap: Record<string, string> = {
   "/cart": "/dashboard/customer/cart",
   "/checkout": "/dashboard/customer/checkout",
   "/profile": "/dashboard/customer/profile",
+  "/address": "/dashboard/customer/address",
   "/notification": "/dashboard/customer/notification",
   "/order": "/dashboard/customer/order",
 };
@@ -163,6 +164,7 @@ export const config = {
     "/cart",
     "/checkout",
     "/profile",
+    "/address",
     "/notification",
     "/order/:path*",
     "/product/:path*",
