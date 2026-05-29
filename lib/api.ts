@@ -5,7 +5,19 @@ import { Product } from "@/types/product";
 import { User } from "@/types/user";
 import { Address, RajaOngkirDestination, ShippingOption } from "@/types/address";
 
-export const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+const DEFAULT_API_URL = "http://localhost:8000/api";
+
+function normalizeApiBaseUrl(url?: string) {
+  const cleanUrl = (url ?? DEFAULT_API_URL).trim().replace(/\/+$/, "");
+  return cleanUrl.endsWith("/api") ? cleanUrl : `${cleanUrl}/api`;
+}
+
+function buildApiUrl(path: string) {
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return `${BASE_URL}${cleanPath}`;
+}
+
+export const BASE_URL = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
 
 type ApiResponse<T> = {
   success: boolean;
@@ -29,7 +41,7 @@ async function parseResponse<T>(response: Response) {
 }
 
 export async function apiFetch<T>(path: string, options?: RequestInit) {
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const response = await fetch(buildApiUrl(path), {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -47,7 +59,7 @@ export async function authFetch<T>(path: string, options?: RequestInit) {
     throw new Error("Please login to continue");
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const response = await fetch(buildApiUrl(path), {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -66,7 +78,7 @@ export async function authFormFetch<T>(path: string, body: FormData) {
     throw new Error("Please login to continue");
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const response = await fetch(buildApiUrl(path), {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -84,7 +96,7 @@ export async function authMultipartFetch<T>(path: string, method: "POST" | "PUT"
     throw new Error("Please login to continue");
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const response = await fetch(buildApiUrl(path), {
     method,
     headers: {
       Authorization: `Bearer ${token}`,

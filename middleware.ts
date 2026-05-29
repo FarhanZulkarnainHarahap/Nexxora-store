@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const AUTH_COOKIE = "nexxora_token";
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+const DEFAULT_API_URL = "http://localhost:8000/api";
+const API_URL = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
 
 type UserRole = "USER" | "ADMIN";
+
+function normalizeApiBaseUrl(url?: string) {
+  const cleanUrl = (url ?? DEFAULT_API_URL).trim().replace(/\/+$/, "");
+  return cleanUrl.endsWith("/api") ? cleanUrl : `${cleanUrl}/api`;
+}
+
+function buildApiUrl(path: string) {
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return `${API_URL}${cleanPath}`;
+}
 
 const customerRouteMap: Record<string, string> = {
   "/home": "/dashboard/customer/home",
@@ -40,7 +51,7 @@ function redirectToRoleHome(request: NextRequest, role: UserRole) {
 
 async function getRoleFromDatabase(token: string): Promise<UserRole | null> {
   try {
-    const response = await fetch(`${API_URL}/auth/me`, {
+    const response = await fetch(buildApiUrl("/auth/me"), {
       headers: {
         Authorization: `Bearer ${token}`,
       },
