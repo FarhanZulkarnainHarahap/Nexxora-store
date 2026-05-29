@@ -11,7 +11,7 @@ import Input from "@/components/ui/Input";
 import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
 import PageWrapper from "@/components/ui/PageWrapper";
 import { authFetch, authFormFetch, getToken } from "@/lib/api";
-import { clearStoredAuth, setStoredAuth } from "@/lib/auth";
+import { clearStoredAuth, getStoredUser, setStoredAuth } from "@/lib/auth";
 import { User } from "@/types/user";
 import { Address } from "@/types/address";
 
@@ -29,7 +29,20 @@ export default function ProfilePage() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    if (!getToken()) {
+    const token = getToken();
+    const storedUser = getStoredUser();
+
+    if (storedUser) {
+      setLoggedIn(true);
+      setUser(storedUser);
+      setName(storedUser.name);
+      setPhone(storedUser.phone ?? "");
+      setAddress(storedUser.address ?? "");
+      setAddresses(storedUser.addresses ?? []);
+      setAvatarPreview(storedUser.avatar ?? "");
+    }
+
+    if (!token) {
       setLoggedIn(false);
       setLoading(false);
       return;
@@ -45,7 +58,19 @@ export default function ProfilePage() {
         setAddresses(data.addresses ?? []);
         setAvatarPreview(data.avatar ?? "");
       })
-      .catch((error) => toast.error(error instanceof Error ? error.message : "API error"))
+      .catch((error) => {
+        const message = error instanceof Error ? error.message : "API error";
+
+        if (message.toLowerCase().includes("login") || message.toLowerCase().includes("unauthorized")) {
+          setLoggedIn(false);
+          setUser(null);
+          clearStoredAuth();
+          toast.error("Session expired. Please login again.");
+          return;
+        }
+
+        toast.error(message);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -158,7 +183,7 @@ export default function ProfilePage() {
             <section className="rounded-2xl border border-white/10 bg-slateBlue/60 p-5 shadow-soft lg:col-span-2">
               <div className="flex items-center gap-3 text-gold">
                 <FiMapPin />
-                <h2 className="text-2xl font-black text-offWhite">Saved Shipping Address</h2>
+              <h2 id="address" className="text-2xl font-black text-offWhite">Saved Shipping Address</h2>
               </div>
               {addresses.length > 0 ? (
                 <div className="mt-5 grid gap-3 md:grid-cols-2">

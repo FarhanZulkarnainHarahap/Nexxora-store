@@ -11,6 +11,7 @@ import {
   FiInfo,
   FiLogIn,
   FiLogOut,
+  FiMapPin,
   FiMenu,
   FiPackage,
   FiSearch,
@@ -49,6 +50,7 @@ const mobileCustomerNavItems = [
 
 const userMenuItems = [
   { href: "/profile", label: "Profile", icon: FiUser },
+  { href: "/profile#address", label: "Address", icon: FiMapPin },
   { href: "/order", label: "Order", icon: FiPackage },
   { href: "/notification", label: "Notification", icon: FiBell },
 ];

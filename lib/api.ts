@@ -27,7 +27,16 @@ type ApiResponse<T> = {
 
 export function getToken() {
   if (typeof window === "undefined") return null;
-  return window.localStorage.getItem("nexxora_token");
+  const localToken = window.localStorage.getItem("nexxora_token");
+
+  if (localToken) return localToken;
+
+  const cookieToken = document.cookie
+    .split("; ")
+    .find((cookie) => cookie.startsWith("nexxora_token="))
+    ?.split("=")[1];
+
+  return cookieToken ? decodeURIComponent(cookieToken) : null;
 }
 
 async function parseResponse<T>(response: Response) {
