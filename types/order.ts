@@ -30,4 +30,9 @@ export type Order = {
   shippingService?: string | null;
   shippingEtd?: string | null;
   createdAt: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 };

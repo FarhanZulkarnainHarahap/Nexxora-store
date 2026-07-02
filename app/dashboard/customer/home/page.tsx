@@ -19,7 +19,7 @@ export default function HomePage() {
   useEffect(() => {
     setLoadingProducts(true);
     apiFetch<Product[]>("/products")
-      .then((data) => setProducts(data.slice(0, 4)))
+      .then(setProducts)
       .catch(() => setProducts([]))
       .finally(() => setLoadingProducts(false));
   }, []);
@@ -36,6 +36,9 @@ export default function HomePage() {
     ["4.9", "Average Rating"],
     ["24H", "Fast Handling"],
   ];
+  const featuredProducts = products.filter((product) => product.isFeatured).slice(0, 4);
+  const newArrivals = products.slice(0, 4);
+  const bestSellers = [...products].sort((a, b) => (b.sold ?? 0) - (a.sold ?? 0)).slice(0, 4);
 
   return (
     <PageWrapper className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -61,7 +64,7 @@ export default function HomePage() {
             transition={{ delay: 0.08 }}
             className="mt-6 max-w-4xl text-4xl font-black leading-tight text-navy sm:text-6xl"
           >
-            Shop Everyday Style, Tech, and Lifestyle Essentials
+            Upgrade Your Everyday Style
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 18 }}
@@ -69,7 +72,7 @@ export default function HomePage() {
             transition={{ delay: 0.16 }}
             className="mt-6 max-w-2xl text-lg leading-8 text-slate-600"
           >
-            Find fashion, sneakers, accessories, electronics, and lifestyle products in one simple shopping destination.
+            Discover curated fashion essentials, streetwear, sneakers, bags, and accessories in one clean shopping experience.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 18 }}
@@ -120,7 +123,7 @@ export default function HomePage() {
           {loadingProducts ? (
             <LoadingSkeleton type="product" count={2} />
           ) : products.length > 0 ? (
-            <ProductGrid products={products.slice(0, 2)} className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2" />
+            <ProductGrid products={(featuredProducts.length ? featuredProducts : products).slice(0, 2)} className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2" />
           ) : (
             <EmptyState
               icon={FiShoppingBag}
@@ -146,8 +149,8 @@ export default function HomePage() {
         <div className="mt-6">
           {loadingProducts ? (
             <LoadingSkeleton type="product" count={4} />
-          ) : products.length > 0 ? (
-            <ProductGrid products={products} />
+          ) : (featuredProducts.length ? featuredProducts : products.slice(0, 4)).length > 0 ? (
+            <ProductGrid products={featuredProducts.length ? featuredProducts : products.slice(0, 4)} />
           ) : (
             <EmptyState
               icon={FiShoppingBag}
@@ -161,9 +164,35 @@ export default function HomePage() {
       </section>
 
       <section className="py-12">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="font-semibold text-gold">New Arrivals</p>
+            <h2 className="mt-2 text-3xl font-black text-navy">Fresh additions to your rotation</h2>
+          </div>
+          <Link href="/catalog?sort=newest" className="hidden text-sm font-bold text-gold sm:block">Shop new arrivals</Link>
+        </div>
+        <div className="mt-6">
+          {loadingProducts ? <LoadingSkeleton type="product" count={4} /> : <ProductGrid products={newArrivals} />}
+        </div>
+      </section>
+
+      <section className="py-12">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="font-semibold text-gold">Best Sellers</p>
+            <h2 className="mt-2 text-3xl font-black text-navy">Most-loved Nexxora essentials</h2>
+          </div>
+          <Link href="/catalog?sort=best-selling" className="hidden text-sm font-bold text-gold sm:block">View best sellers</Link>
+        </div>
+        <div className="mt-6">
+          {loadingProducts ? <LoadingSkeleton type="product" count={4} /> : <ProductGrid products={bestSellers} />}
+        </div>
+      </section>
+
+      <section className="py-12">
         <p className="font-semibold text-gold">Popular Categories</p>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {["Fashion", "Sneakers", "Accessories", "Electronics", "Lifestyle"].map((category) => (
+          {["Jackets", "Hoodies", "T-Shirts", "Sneakers", "Bags"].map((category) => (
             <Link
               href={`/catalog?category=${category.toLowerCase()}`}
               key={category}

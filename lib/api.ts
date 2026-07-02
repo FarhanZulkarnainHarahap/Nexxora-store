@@ -4,6 +4,7 @@ import { Order } from "@/types/order";
 import { Product } from "@/types/product";
 import { User } from "@/types/user";
 import { Address, RajaOngkirDestination, ShippingOption } from "@/types/address";
+import { AdminDashboard, AdminRequest, AdminTransaction } from "@/types/admin";
 
 const DEFAULT_API_URL = "http://localhost:8000/api";
 
@@ -253,4 +254,45 @@ export async function getPaymentStatus(orderId: string) {
     paymentStatus: string;
     paymentUrl: string | null;
   }>(`/payments/${orderId}/status`);
+}
+
+export async function getMyAdminRequest() {
+  return authFetch<AdminRequest | null>("/admin-requests/my-request");
+}
+
+export async function submitAdminRequest(payload: {
+  reason: string;
+  experience: string;
+  whatsapp: string;
+  agreed: boolean;
+}) {
+  return authFetch<AdminRequest>("/admin-requests", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getAdminDashboard() {
+  return authFetch<AdminDashboard>("/admin/dashboard");
+}
+
+export async function getAdminRequests(status?: string) {
+  const query = status ? `?status=${encodeURIComponent(status)}` : "";
+  return authFetch<AdminRequest[]>(`/admin/admin-requests${query}`);
+}
+
+export async function reviewAdminRequest(
+  id: string,
+  action: "approve" | "reject",
+  adminNote: string,
+) {
+  return authFetch<AdminRequest>(`/admin/admin-requests/${id}/${action}`, {
+    method: "PATCH",
+    body: JSON.stringify({ adminNote }),
+  });
+}
+
+export async function getAdminTransactions(status?: string) {
+  const query = status ? `?status=${encodeURIComponent(status)}` : "";
+  return authFetch<AdminTransaction[]>(`/admin/transactions${query}`);
 }

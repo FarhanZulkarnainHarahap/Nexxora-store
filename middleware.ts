@@ -27,6 +27,7 @@ const customerRouteMap: Record<string, string> = {
   "/address": "/dashboard/customer/address",
   "/notification": "/dashboard/customer/notification",
   "/order": "/dashboard/customer/order",
+  "/request-admin": "/dashboard/customer/request-admin",
 };
 
 const adminRouteMap: Record<string, string> = {
@@ -36,6 +37,7 @@ const adminRouteMap: Record<string, string> = {
   "/admin/category": "/dashboard/admin/category",
   "/admin/order": "/dashboard/admin/order",
   "/admin/transaction": "/dashboard/admin/transaction",
+  "/admin/admin-requests": "/dashboard/admin/admin-requests",
 };
 
 function redirectToLogin(request: NextRequest) {
@@ -169,6 +171,7 @@ export const config = {
     "/profile",
     "/address",
     "/notification",
+    "/request-admin",
     "/order/:path*",
     "/product/:path*",
     "/payment/:path*",

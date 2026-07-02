@@ -16,6 +16,9 @@ export default function CatalogPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("newest");
+  const [stock, setStock] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -24,6 +27,9 @@ export default function CatalogPage() {
     if (search) query.set("search", search);
     if (category) query.set("category", category);
     if (sort) query.set("sort", sort);
+    if (stock) query.set("stock", stock);
+    if (minPrice) query.set("minPrice", minPrice);
+    if (maxPrice) query.set("maxPrice", maxPrice);
 
     setLoading(true);
     setError("");
@@ -41,7 +47,7 @@ export default function CatalogPage() {
         setError(requestError instanceof Error ? requestError.message : "We could not load products right now.");
       })
       .finally(() => setLoading(false));
-  }, [search, category, sort]);
+  }, [search, category, sort, stock, minPrice, maxPrice]);
 
   const productCount = useMemo(() => products.length, [products]);
 
@@ -56,14 +62,23 @@ export default function CatalogPage() {
         search={search}
         category={category}
         sort={sort}
+        stock={stock}
+        minPrice={minPrice}
+        maxPrice={maxPrice}
         categories={categories}
         onSearchChange={setSearch}
         onCategoryChange={setCategory}
         onSortChange={setSort}
+        onStockChange={setStock}
+        onMinPriceChange={setMinPrice}
+        onMaxPriceChange={setMaxPrice}
         onReset={() => {
           setSearch("");
           setCategory("");
           setSort("newest");
+          setStock("");
+          setMinPrice("");
+          setMaxPrice("");
         }}
       />
       <div className="mt-8">
@@ -79,6 +94,9 @@ export default function CatalogPage() {
               setSearch("");
               setCategory("");
               setSort("newest");
+              setStock("");
+              setMinPrice("");
+              setMaxPrice("");
             }}
           />
         )}

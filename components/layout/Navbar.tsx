@@ -18,6 +18,7 @@ import {
   FiShoppingBag,
   FiShoppingCart,
   FiUser,
+  FiUserPlus,
 } from "react-icons/fi";
 import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -45,6 +46,7 @@ const mobileCustomerNavItems = [
   { href: "/cart", label: "Cart", icon: FiShoppingCart },
   { href: "/order", label: "Order", icon: FiPackage },
   { href: "/notification", label: "Notification", icon: FiBell },
+  { href: "/request-admin", label: "Request Admin", icon: FiUserPlus },
   { href: "/profile", label: "Profile", icon: FiUser },
 ];
 
@@ -53,6 +55,7 @@ const userMenuItems = [
   { href: "/address", label: "Address", icon: FiMapPin },
   { href: "/order", label: "Order", icon: FiPackage },
   { href: "/notification", label: "Notification", icon: FiBell },
+  { href: "/request-admin", label: "Request Admin", icon: FiUserPlus },
 ];
 
 export default function Navbar() {
@@ -134,22 +137,22 @@ export default function Navbar() {
       transition={{ duration: 0.35 }}
       className="sticky top-0 z-40 border-b border-white/10 bg-navy/70 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur-2xl"
     >
-      <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-8">
         <Link href="/" className="group flex items-center gap-3">
           <motion.span
             whileHover={{ rotate: -4, scale: 1.06 }}
-            className="relative h-12 w-12 overflow-hidden rounded-2xl bg-gold shadow-gold"
+            className="relative h-10 w-10 overflow-hidden rounded-xl bg-gold shadow-gold"
           >
             <Image
               src="/logo nexxora.png"
               alt="Nexxora logo"
               fill
               priority
-              sizes="48px"
+              sizes="40px"
               className="object-cover"
             />
           </motion.span>
-          <span className="flex items-baseline text-[2.15rem] font-black leading-none tracking-tight">
+          <span className="flex items-baseline text-[1.7rem] font-black leading-none tracking-tight">
             <span className="text-offWhite">Nex</span>
             <span className="text-gold">x</span>
             <span className="text-offWhite">ora</span>

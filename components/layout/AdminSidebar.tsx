@@ -19,6 +19,7 @@ import {
   FiActivity,
   FiSettings,
   FiRadio,
+  FiUserCheck,
 } from "react-icons/fi";
 import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -34,6 +35,7 @@ const adminItems = [
   { href: "/admin/home", label: "Dashboard", icon: FiHome },
   { href: "/admin/order", label: "Order", icon: FiPackage },
   { href: "/admin/transaction", label: "Transaction", icon: FiCreditCard },
+  { href: "/admin/admin-requests", label: "Admin Requests", icon: FiUserCheck },
 ];
 
 const productItems = [

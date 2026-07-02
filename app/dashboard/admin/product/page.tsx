@@ -35,6 +35,7 @@ type ProductFormState = {
   stock: string;
   categoryId: string;
   image: File | null;
+  isFeatured: boolean;
 };
 
 const emptyForm: ProductFormState = {
@@ -44,6 +45,7 @@ const emptyForm: ProductFormState = {
   stock: "",
   categoryId: "",
   image: null,
+  isFeatured: false,
 };
 
 export default function AdminProductPage() {
@@ -57,6 +59,8 @@ export default function AdminProductPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [form, setForm] = useState<ProductFormState>(emptyForm);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
 
   const totalStock = useMemo(
     () => products.reduce((total, product) => total + product.stock, 0),
@@ -99,6 +103,7 @@ export default function AdminProductPage() {
       stock: String(product.stock),
       categoryId: product.category.id,
       image: null,
+      isFeatured: product.isFeatured ?? false,
     });
     setModalMode("edit");
     setModalOpen(true);
@@ -116,7 +121,7 @@ export default function AdminProductPage() {
     setForm(emptyForm);
   }
 
-  function setField(field: keyof ProductFormState, value: string | File | null) {
+  function setField(field: keyof ProductFormState, value: string | File | boolean | null) {
     setForm((current) => ({
       ...current,
       [field]: value,
@@ -130,6 +135,7 @@ export default function AdminProductPage() {
     formData.append("price", form.price);
     formData.append("stock", form.stock);
     formData.append("categoryId", form.categoryId);
+    formData.append("isFeatured", String(form.isFeatured));
 
     if (form.image) {
       formData.append("image", form.image);
@@ -197,6 +203,11 @@ export default function AdminProductPage() {
     { label: "Category", value: categories.length },
     { label: "Total Stock", value: totalStock },
   ];
+  const visibleProducts = products.filter((product) => {
+    const matchesSearch = product.name.toLowerCase().includes(search.trim().toLowerCase());
+    const matchesCategory = !categoryFilter || product.category.id === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <PageWrapper className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -247,6 +258,25 @@ export default function AdminProductPage() {
           </span>
         </div>
 
+        <div className="grid gap-3 border-b border-white/10 p-5 md:grid-cols-2">
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search product..."
+            className="h-11 rounded-xl border border-navy/10 bg-white px-4 text-navy placeholder:text-slate-400 focus:border-gold"
+          />
+          <select
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+            className="h-11 rounded-xl border border-navy/10 bg-white px-4 text-navy focus:border-gold"
+          >
+            <option value="">All categories</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>{category.name}</option>
+            ))}
+          </select>
+        </div>
+
         {loading ? (
           <div className="p-5">
             <LoadingSkeleton type="product" count={4} />
@@ -274,7 +304,7 @@ export default function AdminProductPage() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => (
+                {visibleProducts.map((product) => (
                   <tr key={product.id} className="border-b border-white/10 transition hover:bg-white/[0.04]">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-4">
@@ -363,7 +393,7 @@ type ProductModalProps = {
   saving: boolean;
   selectedProduct: Product | null;
   onClose: () => void;
-  onFieldChange: (field: keyof ProductFormState, value: string | File | null) => void;
+  onFieldChange: (field: keyof ProductFormState, value: string | File | boolean | null) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
 
@@ -468,6 +498,19 @@ function ProductModal({
                 placeholder="Describe product quality, material, and details"
                 className="w-full resize-none rounded-xl border border-white/10 bg-navy/65 px-4 py-3 text-offWhite placeholder:text-muted/60 transition focus:border-gold focus:ring-4 focus:ring-gold/15"
               />
+            </label>
+
+            <label className="mt-5 flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-navy/45 p-4">
+              <input
+                type="checkbox"
+                checked={form.isFeatured}
+                onChange={(event) => onFieldChange("isFeatured", event.target.checked)}
+                className="h-4 w-4 accent-amber-500"
+              />
+              <span>
+                <span className="block text-sm font-bold text-offWhite">Featured product</span>
+                <span className="mt-1 block text-xs text-muted">Show this item in curated storefront sections.</span>
+              </span>
             </label>
 
             <label className="mt-5 block cursor-pointer rounded-2xl border border-dashed border-white/15 bg-navy/45 p-5 transition hover:border-gold/50 hover:bg-gold/5">

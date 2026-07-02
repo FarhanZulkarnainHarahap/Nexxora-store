@@ -60,7 +60,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
           <div className="absolute bottom-4 right-4 flex items-center gap-1 rounded-full border border-gold/25 bg-white/90 px-3 py-1 text-sm font-bold text-gold shadow-sm backdrop-blur">
             <FiStar />
-            4.9
+            {(product.rating ?? 4.5).toFixed(1)}
           </div>
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -88,7 +88,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         <div className="mt-3 flex items-end justify-between gap-3">
           <p className="text-xl font-black text-navy">{formatPrice(product.price)}</p>
-          <p className="text-xs font-semibold text-slate-500">{product.stock} left</p>
+          <p className="text-xs font-semibold text-slate-500">
+            {product.sold ?? 0} sold · {product.stock} left
+          </p>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3">
           <AnimatedButton
