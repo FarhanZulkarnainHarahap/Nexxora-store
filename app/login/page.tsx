@@ -10,6 +10,7 @@ import Input from "@/components/ui/Input";
 import PageWrapper from "@/components/ui/PageWrapper";
 import { login } from "@/lib/api";
 import { setStoredAuth } from "@/lib/auth";
+import SocialLoginButtons from "@/components/auth/SocialLoginButtons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -70,6 +71,12 @@ export default function LoginPage() {
         <AnimatedButton className="mt-6 w-full" loading={loading} iconLeft={FiLogIn}>
           Login
         </AnimatedButton>
+        <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-wider text-muted">
+          <span className="h-px flex-1 bg-white/10" />
+          or
+          <span className="h-px flex-1 bg-white/10" />
+        </div>
+        <SocialLoginButtons />
         <p className="mt-5 text-center text-sm text-muted">
           New to Nexxora? <Link href="/register" className="font-semibold text-gold">Create account</Link>
         </p>

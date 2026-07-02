@@ -106,6 +106,9 @@ function getCustomerDestination(pathname: string) {
 }
 
 function getAdminDestination(pathname: string) {
+  if (pathname === "/admin/erp" || pathname.startsWith("/admin/erp/")) {
+    return pathname.replace("/admin/erp", "/dashboard/admin/erp");
+  }
   return adminRouteMap[pathname] ?? null;
 }
 

@@ -123,6 +123,16 @@ export async function login(email: string, password: string) {
   });
 }
 
+export async function getCurrentUserWithToken(token: string) {
+  const response = await fetch(buildApiUrl("/auth/me"), {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return parseResponse<User>(response);
+}
+
 export async function register(name: string, email: string, password: string) {
   return apiFetch<User>("/auth/register", {
     method: "POST",

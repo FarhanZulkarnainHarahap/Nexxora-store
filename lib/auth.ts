@@ -1,4 +1,5 @@
 import { User } from "@/types/user";
+import { BASE_URL } from "@/lib/api";
 
 const TOKEN_KEY = "nexxora_token";
 const USER_KEY = "nexxora_user";
@@ -37,4 +38,8 @@ export function clearStoredAuth() {
   deleteCookie(TOKEN_KEY);
   deleteCookie(ROLE_KEY);
   window.dispatchEvent(new Event("nexxora-auth-change"));
+}
+
+export function getOAuthSignInUrl(provider: "google" | "tiktok") {
+  return `${BASE_URL}/auth/signin/${provider}`;
 }

@@ -7,6 +7,7 @@ import { ReactNode, useEffect, useState } from "react";
 import {
   FiChevronDown,
   FiCreditCard,
+  FiDatabase,
   FiHome,
   FiLogOut,
   FiMenu,
@@ -15,6 +16,9 @@ import {
   FiTag,
   FiUser,
   FiX,
+  FiActivity,
+  FiSettings,
+  FiRadio,
 } from "react-icons/fi";
 import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -37,12 +41,24 @@ const productItems = [
   { href: "/admin/category", label: "Category", icon: FiTag },
 ];
 
+const erpItems = [
+  { href: "/admin/erp", label: "Overview", icon: FiDatabase },
+  { href: "/admin/erp/tokopedia", label: "Tokopedia", icon: FiShoppingBag },
+  { href: "/admin/erp/tiktok-shop", label: "TikTok Shop", icon: FiShoppingBag },
+  { href: "/admin/erp/products", label: "Products", icon: FiPackage },
+  { href: "/admin/erp/orders", label: "Orders", icon: FiCreditCard },
+  { href: "/admin/erp/sync-logs", label: "Sync Logs", icon: FiActivity },
+  { href: "/admin/erp/webhooks", label: "Webhooks", icon: FiRadio },
+  { href: "/admin/erp/settings", label: "Settings", icon: FiSettings },
+];
+
 export default function AdminSidebar({ children }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [productMenuOpen, setProductMenuOpen] = useState(true);
+  const [erpMenuOpen, setErpMenuOpen] = useState(true);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -60,7 +76,7 @@ export default function AdminSidebar({ children }: AdminSidebarProps) {
       initial={{ x: -20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       className={cn(
-        "fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-white/10 bg-[linear-gradient(180deg,#1B263B_0%,#111827_100%)] p-4 shadow-[22px_0_70px_rgba(0,0,0,0.22)] transition-all lg:sticky lg:top-0 lg:h-screen",
+        "fixed inset-y-0 left-0 z-50 flex w-72 flex-col overflow-y-auto border-r border-white/10 bg-[linear-gradient(180deg,#1B263B_0%,#111827_100%)] p-4 shadow-[22px_0_70px_rgba(0,0,0,0.22)] transition-all lg:sticky lg:top-0 lg:h-screen",
         collapsed && "lg:w-24",
       )}
     >
@@ -150,6 +166,59 @@ export default function AdminSidebar({ children }: AdminSidebarProps) {
                     const Icon = item.icon;
                     const active = pathname === item.href;
 
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setOpen(false)}
+                        className={cn(
+                          "flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-muted transition hover:bg-white/10 hover:text-offWhite",
+                          active && "bg-gold/10 text-gold",
+                        )}
+                      >
+                        <Icon className="text-base" />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
+
+        <div>
+          <button
+            type="button"
+            onClick={() => setErpMenuOpen((value) => !value)}
+            className={cn(
+              "group flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-muted transition hover:bg-white/10 hover:text-offWhite",
+              pathname.startsWith("/admin/erp") &&
+                "bg-gold/15 text-gold shadow-[inset_0_0_0_1px_rgba(229,169,59,0.28)]",
+              collapsed && "justify-center",
+            )}
+            aria-expanded={erpMenuOpen}
+          >
+            <FiDatabase className="text-lg" />
+            {!collapsed ? (
+              <>
+                <span className="flex-1 text-left">ERP Marketplace</span>
+                <FiChevronDown className={cn("transition", erpMenuOpen && "rotate-180")} />
+              </>
+            ) : null}
+          </button>
+          <AnimatePresence>
+            {!collapsed && erpMenuOpen ? (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="ml-5 mt-2 grid gap-1 border-l border-white/10 pl-3">
+                  {erpItems.map((item) => {
+                    const Icon = item.icon;
+                    const active = pathname === item.href;
                     return (
                       <Link
                         key={item.href}

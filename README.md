@@ -40,6 +40,7 @@ web/
 - Customer navbar
 - Admin sidebar
 - Login and register
+- Google and TikTok social login
 - Product catalog
 - Product detail
 - Cart
@@ -52,6 +53,7 @@ web/
 - Notification page
 - Profile and avatar update
 - Animated error pages
+- ERP Marketplace admin dashboard
 
 ## Environment
 
@@ -117,10 +119,43 @@ Admin-facing pages include:
 - Category
 - Order
 - Transaction
+- ERP Marketplace overview, channel pages, products, orders, sync logs,
+  webhooks, and settings
 
 ## Authentication
 
 JWT is stored in browser storage and mirrored into cookies for middleware checks. Admin pages are protected by role-based routing. The middleware confirms access using the backend auth session before allowing admin routes.
+
+The login page also links to backend Auth.js provider routes. The backend
+returns the Nexxora JWT in the callback URL fragment, the callback page validates
+it through `/api/auth/me`, stores it with the existing auth helper, then routes
+admins to `/admin` and customers to `/dashboard`. OAuth failures render a clear
+callback error state.
+
+## ERP Marketplace
+
+The existing admin sidebar now includes:
+
+- `/admin/erp`
+- `/admin/erp/tokopedia`
+- `/admin/erp/tiktok-shop`
+- `/admin/erp/products`
+- `/admin/erp/orders`
+- `/admin/erp/sync-logs`
+- `/admin/erp/webhooks`
+- `/admin/erp/settings`
+
+The overview displays the backend adapter mode and uses a `MOCK MODE` or
+`LIVE MODE` badge. Mock mode is fully usable without Tokopedia/TikTok Shop
+Partner credentials: connect each mock shop, sync products/orders, link local
+products, test stock/price pushes, and inspect logs/webhook payloads.
+
+`NEXT_PUBLIC_API_URL` can be either the backend origin or include `/api`; the
+existing API helper normalizes both:
+
+```env
+NEXT_PUBLIC_API_URL="http://localhost:8000"
+```
 
 ## UI Notes
 
